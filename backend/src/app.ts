@@ -15,7 +15,10 @@ const prisma = new PrismaClient();
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 25,
-  message: "Too many requests from this IP, please try again after 15 minutes."
+  message: {
+    message: 'Too many requests, please try again later.',
+    status: 429,
+  }
 });
 
 app.use(limiter);
