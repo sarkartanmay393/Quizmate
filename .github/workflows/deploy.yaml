@@ -40,6 +40,6 @@ jobs:
         aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         application_name: quizmate
         environment_name: production
-        version_label: backend-${{ github.sha }}
+        version_label: backend-${{ github.sha }}-${{ github.run_id }}
         region: ap-south-1
         deployment_package: backend/deploy.zip
