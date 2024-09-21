@@ -77,7 +77,12 @@ export const getQuizByInviteCode = async (req: AuthenticatedRequest, res: Respon
       include: {
         questions: {
           include: {
-            answers: true,
+            answers: {
+              select: {
+                text: true,
+                id: true,
+              }
+            },
           },
         }
       },
@@ -136,8 +141,18 @@ export const createQuiz = async (req: AuthenticatedRequest, res: Response) => {
       }
 
       // Validate answers for each question
+      let foundCorrectAnswer = false;
       for (let j = 0; j < question.answers.length; j++) {
         const answer = question.answers[j];
+
+        if (answer.isCorrect && foundCorrectAnswer) {
+          res.status(400).json({ error: `Answer ${j + 1} for Question ${i + 1} is incorrect because it is marked as correct` });
+          return;
+        }
+
+        if (answer.isCorrect) {
+          foundCorrectAnswer = true;
+        }
 
         // Check for required answer fields
         if (!answer.text || typeof answer.isCorrect !== 'boolean') {
@@ -285,8 +300,17 @@ export const addQuestionToQuiz = async (req: AuthenticatedRequest, res: Response
       return res.status(400).json({ error: "Question must have four answers" });
     }
 
+    let foundCorrectAnswer = false;
     for (let i = 0; i < answers.length; i++) {
       const answer = answers[i];
+      if (answer.isCorrect && foundCorrectAnswer) {
+        res.status(400).json({ error: `This question has multiple correct answers` });
+        return;
+      }
+
+      if (answer.isCorrect) {
+        foundCorrectAnswer = true;
+      }
       if (!answer.text || typeof answer.isCorrect !== 'boolean') {
         return res.status(400).json({ error: `Answer ${i + 1} is missing required fields: text or isCorrect` });
       }

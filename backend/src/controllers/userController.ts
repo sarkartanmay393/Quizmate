@@ -54,7 +54,7 @@ export const createUser = async (req: Request, res: Response) => {
   }
 };
 
-export const loginAdminUser = async (req: Request, res: Response) => {
+export const loginUser = async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
   try {

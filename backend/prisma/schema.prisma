@@ -55,6 +55,8 @@ model Result {
   quizId      Int
   User        User     @relation(fields: [userId], references: [id])
   Quiz        Quiz     @relation(fields: [quizId], references: [id])
+
+  @@unique([userId, quizId])
 }
 
 model InviteCode {
