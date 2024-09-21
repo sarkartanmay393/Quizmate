@@ -1,35 +1,10 @@
 import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 
 const prisma = new PrismaClient();
 const SALT_ROUNDS = 10;
-
-export const getAllUsers = async (req: Request, res: Response) => {
-  try {
-    const users = await prisma.user.findMany();
-    res.status(200).json({ users});
-  } catch (error) {
-    res.status(500).json({ error: "Failed to retrieve users" });
-  }
-};
-
-export const getUserById = async (req: Request, res: Response) => {
-  const { id } = req.params;
-  try {
-    const user = await prisma.user.findUnique({
-      where: { id: Number(id) },
-    });
-
-    if (user) {
-      res.status(200).json({ user });
-    } else {
-      res.status(404).json({ error: "User not found" });
-    }
-  } catch (error) {
-    res.status(500).json({ error: "Failed to retrieve user" });
-  }
-};
 
 export const createUser = async (req: Request, res: Response) => {
   const { name, email, password, role } = req.body;
@@ -114,12 +89,19 @@ export const loginAdminUser = async (req: Request, res: Response) => {
       return;
     }
 
-    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET as string, {
-      expiresIn: "1h",
-    });
+    const token = jwt.sign(
+      {
+        userId: user.id,
+        email: user.email,
+        role: user.role,
+      },
+      process.env.JWT_SECRET as string,
+      {
+        expiresIn: "4h",
+      });
 
-    res.status(200).json({ user });
+    res.status(200).json({ user, token });
   } catch (error) {
-    res.status(500).json({ error: "Failed to login user", verbose: JSON.stringify(error) });
+    res.status(500).json({ error: "Failed to login user" });
   }
 };

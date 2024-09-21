@@ -1,11 +1,12 @@
 import { Router } from 'express';
-import { getAllResultsForQuiz, getAllResultsForUser, getResultById, createResult, updateResult, deleteResult } from '../controllers/resultController';
+import { getAllResultsForQuiz, getAllResultsForUser, getResultById, createResult } from '../controllers/resultController';
+import { authenticateToken } from '../middlewares/authMiddleware';
 
 const router = Router();
 
-router.get('/getAllResultsForQuiz/:quizId', getAllResultsForQuiz);   // Get all results for a specific quiz
-router.get('/users/:userId/results', getAllResultsForUser);   // Get all results for a specific user
-router.get('/results/:id', getResultById);                    // Get a specific result by ID
-router.post('/results', createResult);                        // Create a new result
+router.get('/getAllResultsByQuiz/:quizId', authenticateToken, getAllResultsForQuiz); 
+router.get('/users/:userId/results', getAllResultsForUser);
+router.get('/results/:id', getResultById);
+router.post('/results', createResult);
 
 export default router;

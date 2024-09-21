@@ -69,6 +69,10 @@ export const createResult = async (req: Request, res: Response) => {
         quizId: Number(quizId),
         score,
         timeTaken,
+        detailed: {
+          answers: null,
+          questions: null,
+        },
       },
     });
     res.status(201).json(newResult);

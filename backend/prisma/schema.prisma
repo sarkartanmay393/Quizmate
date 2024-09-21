@@ -15,11 +15,14 @@ model User {
   role           String   // "admin" or "interviewee"
   createdQuizzes Quiz[]   @relation("adminQuizzes")
   results        Result[]
+  inviteCodes    InviteCode[] @relation("adminInvites")
 }
 
 model Quiz {
   id           Int        @id @default(autoincrement())
   title        String
+  inviteCode   String?     @unique
+  InviteCode   InviteCode?
   adminId      Int        // Admin's user ID
   Admin        User       @relation(fields: [adminId], references: [id], name: "adminQuizzes")
   questions    Question[]
@@ -47,8 +50,18 @@ model Result {
   id          Int      @id @default(autoincrement())
   score       Int      // Total score (number of correct answers)
   timeTaken   Int      // Total time taken for the quiz
-  userId      Int
+  detailed    Json     // Detailed results for each question
+  userId      Int      // User ID (interviewee)
   quizId      Int
   User        User     @relation(fields: [userId], references: [id])
   Quiz        Quiz     @relation(fields: [quizId], references: [id])
+}
+
+model InviteCode {
+  id       Int    @id @default(autoincrement())
+  quizId   Int    @unique // Ensure quizId is unique for one-to-one relation
+  Quiz     Quiz   @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  adminId  Int
+  Admin    User   @relation(fields: [adminId], references: [id], name: "adminInvites")
+  code     String @unique // Unique invite code but public code, anyone can use it to attempt the quiz
 }

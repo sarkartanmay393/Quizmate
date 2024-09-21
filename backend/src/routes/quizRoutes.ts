@@ -1,15 +1,25 @@
 import { Router } from 'express';
-import { getAllQuizzes, getQuizById, createQuiz, updateQuizTitle, deleteQuiz, addQuestionToQuiz } from '../controllers/quizController';
+import { authenticateToken } from '../middlewares/authMiddleware';
+import {
+  getQuizById,
+  createQuiz,
+  updateQuizTitle,
+  deleteQuiz,
+  addQuestionToQuiz,
+  getAllQuizzesByAdmin,
+  getQuizByInviteCode
+} from '../controllers/quizController';
 
 const router = Router();
 
-router.get('/getAllQuizzes', getAllQuizzes);
-router.get('/getQuiz/:id', getQuizById);
+router.get('/getAllQuizzesByAdmin', authenticateToken, getAllQuizzesByAdmin);
+router.get('/getQuizById/:id', authenticateToken, getQuizById);
+router.get('/getQuizByInviteCode/:inviteCode', authenticateToken, getQuizByInviteCode);
 
-router.put('/updateQuizTitle/:id', updateQuizTitle);
-router.post('/addQuestionToQuiz/:quizId', addQuestionToQuiz);
+router.put('/updateQuizTitle/:id', authenticateToken, updateQuizTitle);
+router.post('/addQuestionToQuiz/:quizId', authenticateToken, addQuestionToQuiz);
 
-router.post('/createQuiz', createQuiz);
-router.delete('/deleteQuiz/:id', deleteQuiz);
+router.post('/createQuiz', authenticateToken, createQuiz);
+router.delete('/deleteQuiz/:id', authenticateToken, deleteQuiz);
 
 export default router;
