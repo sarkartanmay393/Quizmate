@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import rateLimit from 'express-rate-limit';
 import userRoutes from '././routes/userRoutes';
 import resultRoutes from './routes/resultRoutes';
 import quizRoutes from './routes/quizRoutes';
@@ -11,6 +12,13 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 const prisma = new PrismaClient();
 
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 25,
+  message: "Too many requests from this IP, please try again after 15 minutes."
+});
+
+app.use(limiter);
 app.use(express.json());
 app.use(cors());
 
