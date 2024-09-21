@@ -1,12 +1,15 @@
 import { Router } from 'express';
-import { getAllQuizzes, getQuizById, createQuiz, updateQuiz, deleteQuiz } from '../controllers/QuizController';
+import { getAllQuizzes, getQuizById, createQuiz, updateQuizTitle, deleteQuiz, addQuestionToQuiz } from '../controllers/quizController';
 
 const router = Router();
 
-router.get('/quizzes', getAllQuizzes);
-router.get('/quizzes/:id', getQuizById);
-router.post('/quizzes', createQuiz);
-router.put('/quizzes/:id', updateQuiz);
-router.delete('/quizzes/:id', deleteQuiz);
+router.get('/getAllQuizzes', getAllQuizzes);
+router.get('/getQuiz/:id', getQuizById);
+
+router.put('/updateQuizTitle/:id', updateQuizTitle);
+router.post('/addQuestionToQuiz/:quizId', addQuestionToQuiz);
+
+router.post('/createQuiz', createQuiz);
+router.delete('/deleteQuiz/:id', deleteQuiz);
 
 export default router;

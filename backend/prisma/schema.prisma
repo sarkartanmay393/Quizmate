@@ -22,7 +22,7 @@ model Quiz {
   title        String
   adminId      Int        // Admin's user ID
   Admin        User       @relation(fields: [adminId], references: [id], name: "adminQuizzes")
-  questions    Question[] // List of questions
+  questions    Question[]
   results      Result[]
 }
 
@@ -30,9 +30,9 @@ model Question {
   id        Int        @id @default(autoincrement())
   text      String     // The actual question
   category  String     // Tag/category like "JavaScript", "Database", etc.
-  answers   Answer[]   // Possible answers
+  answers   Answer[]
   quizId    Int
-  Quiz      Quiz       @relation(fields: [quizId], references: [id])
+  Quiz      Quiz       @relation(fields: [quizId], references: [id], onDelete: Cascade)
 }
 
 model Answer {
@@ -40,7 +40,7 @@ model Answer {
   text       String   // Answer text
   isCorrect  Boolean  // Whether this answer is correct
   questionId Int
-  Question   Question @relation(fields: [questionId], references: [id])
+  Question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
 }
 
 model Result {

@@ -2,10 +2,9 @@
   "name": "backend",
   "version": "1.0.0",
   "description": "",
-  "main": "src/app.ts",
   "scripts": {
-    "dev": "nodemon src/app.ts",
-    "build": "tsc"
+    "build": "tsc",
+    "dev": "nodemon src/app.ts"
   },
   "author": "Tanmay Sarkar",
   "license": "ISC",
@@ -25,8 +24,11 @@
     "prisma": "^5.19.1"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
-    "@types/node": "^22.5.5"
+    "@types/node": "^22.5.5",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.2"
   }
 }
