@@ -1,0 +1,45 @@
+name: Deploy Backend to AWS
+
+on:
+  push:
+    branches: [ master ]
+    paths:
+      - 'backend/**'
+
+jobs:
+  deploy-backend:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Use Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '20'
+        
+    - name: Install backend dependencies
+      run: |
+        cd backend
+        npm install
+        
+    - name: Build backend
+      run: |
+        cd backend
+        npm run build
+        
+    - name: Generate backend deployment package
+      run: |
+        cd backend
+        zip -r deploy.zip dist package.json package-lock.json .ebextensions -x "node_modules/*"
+        
+    - name: Deploy backend to EB
+      uses: einaregilsson/beanstalk-deploy@v21
+      with:
+        aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        application_name: quizmate
+        environment_name: production
+        version_label: backend-${{ github.sha }}
+        region: ap-south-1
+        deployment_package: backend/deploy.zip
