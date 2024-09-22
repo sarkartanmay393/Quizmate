@@ -36,8 +36,8 @@ app.use('/v1/api', resultRoutes);
 app.use(catchAllMiddleware);
 app.use(catchGlobalErrors);
 
-app.listen(PORT, () => {
-  checkDatabaseConnection(() => {
+checkDatabaseConnection(() => {
+  app.listen(PORT, () => {
     console.log(`🚀 Server is running on port ${PORT}`);
   });
 });
@@ -49,5 +49,6 @@ async function checkDatabaseConnection(cb: any) {
     cb();
   } catch (error) {
     console.error('❌ Failed to connect to the database:', error);
+    process.exit(1);
   }
 }
