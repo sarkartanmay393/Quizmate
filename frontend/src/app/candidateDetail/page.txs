@@ -1,0 +1,190 @@
+"use client"
+
+import { useState } from 'react'
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { Button } from "@/components/ui/button"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { CheckCircle, XCircle, Copy, Check } from 'lucide-react'
+
+interface Question {
+  id: number
+  text: string
+  category: string
+  options: string[]
+  correctAnswer: number
+}
+
+interface CandidateAnswer {
+  questionId: number
+  selectedAnswer: number
+}
+
+interface Candidate {
+  id: number
+  name: string
+  email: string
+  score: number
+  timeTaken: number
+  answers: CandidateAnswer[]
+}
+
+const mockQuestions: Question[] = [
+  {
+    id: 1,
+    text: "What is the capital of France?",
+    category: "Geography",
+    options: ["London", "Berlin", "Paris", "Madrid"],
+    correctAnswer: 2
+  },
+  {
+    id: 2,
+    text: "Which planet is known as the Red Planet?",
+    category: "Astronomy",
+    options: ["Venus", "Mars", "Jupiter", "Saturn"],
+    correctAnswer: 1
+  },
+  {
+    id: 3,
+    text: "Who painted the Mona Lisa?",
+    category: "Art",
+    options: ["Vincent van Gogh", "Leonardo da Vinci", "Pablo Picasso", "Claude Monet"],
+    correctAnswer: 1
+  }
+]
+
+const mockCandidate: Candidate = {
+  id: 1,
+  name: "John Doe",
+  email: "john.doe@example.com",
+  score: 2,
+  timeTaken: 180,
+  answers: [
+    { questionId: 1, selectedAnswer: 2 },
+    { questionId: 2, selectedAnswer: 1 },
+    { questionId: 3, selectedAnswer: 0 }
+  ]
+}
+
+export default function CandidateDetailPage() {
+  const [candidate] = useState<Candidate>(mockCandidate)
+  const [questions] = useState<Question[]>(mockQuestions)
+  const [copied, setCopied] = useState(false)
+
+  const formatTime = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60)
+    const remainingSeconds = seconds % 60
+    return `${minutes}m ${remainingSeconds}s`
+  }
+
+  const copyEmail = async () => {
+    try {
+      await navigator.clipboard.writeText(candidate.email)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch (err) {
+      console.error('Failed to copy email: ', err)
+    }
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-100 py-8">
+      <div className="mx-auto max-w-4xl">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-2xl font-bold">Candidate Details</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 gap-4 mb-6">
+              <div>
+                <Label htmlFor="name">Name</Label>
+                <Input id="name" value={candidate.name} readOnly />
+              </div>
+              <div>
+                <Label htmlFor="email">Email</Label>
+                <div className="flex items-center space-x-2">
+                  <Input id="email" value={candidate.email} readOnly className="flex-grow" />
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button size="icon" variant="outline" onClick={copyEmail}>
+                          {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{copied ? 'Copied!' : 'Copy email'}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+              </div>
+              <div>
+                <Label htmlFor="score">Score</Label>
+                <Input id="score" value={`${candidate.score} / ${questions.length}`} readOnly />
+              </div>
+              <div>
+                <Label htmlFor="time">Time Taken</Label>
+                <Input id="time" value={formatTime(candidate.timeTaken)} readOnly />
+              </div>
+            </div>
+
+            {questions.map((question, index) => {
+              const candidateAnswer = candidate.answers.find(a => a.questionId === question.id)
+              const isCorrect = candidateAnswer?.selectedAnswer === question.correctAnswer
+
+              return (
+                <Card key={question.id} className="mb-6">
+                  <CardHeader className="flex flex-row items-start justify-between">
+                    <div className="mr-4 flex-1">
+                      <h3 className="text-lg font-semibold">Question {index + 1}: {question.text}</h3>
+                    </div>
+                    <div className="text-sm text-gray-500">
+                      Category: {question.category}
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <RadioGroup value={candidateAnswer?.selectedAnswer.toString()}>
+                      {question.options.map((option, optionIndex) => (
+                        <div key={optionIndex} className="flex items-center space-x-2 mb-2">
+                          <RadioGroupItem
+                            value={optionIndex.toString()}
+                            id={`q${question.id}o${optionIndex}`}
+                            disabled
+                          />
+                          <Label htmlFor={`q${question.id}o${optionIndex}`} className="flex-1">
+                            {option}
+                          </Label>
+                          {candidateAnswer?.selectedAnswer === optionIndex && (
+                            isCorrect ? (
+                              <CheckCircle className="h-5 w-5 text-green-500" />
+                            ) : (
+                              <XCircle className="h-5 w-5 text-red-500" />
+                            )
+                          )}
+                          {question.correctAnswer === optionIndex && !isCorrect && (
+                            <CheckCircle className="h-5 w-5 text-blue-500" />
+                          )}
+                        </div>
+                      ))}
+                    </RadioGroup>
+                  </CardContent>
+                  <CardFooter>
+                    <div className="text-sm text-gray-500">
+                      {isCorrect ? (
+                        <span className="text-green-500">Correct Answer</span>
+                      ) : (
+                        <span className="text-red-500">Incorrect Answer</span>
+                      )}
+                    </div>
+                  </CardFooter>
+                </Card>
+              )
+            })}
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  )
+}
