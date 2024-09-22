@@ -31,3 +31,13 @@ export const getAllResultsByQuizId = async () => {
   const response = await axiosInstance.get(`/getAllResultsForUser`);
   return response.data;
 };
+
+export const getAllResultsByQuizIdOriginal = async (id: number) => {
+  const response = await axiosInstance.get(`/getAllResultsByQuizId/${id}`);
+  return response.data;
+};
+
+export const getUserNameById = async (ids: number[]) => {
+  const response = await axiosInstance.post(`/getUserNameById`, {ids: ids});
+  return response.data;
+}

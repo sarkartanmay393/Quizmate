@@ -1,119 +1,190 @@
-"use client";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-floating-promises */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/consistent-indexed-object-style */
+"use client"
 
-import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "~/components/ui/table";
-import { Button } from "~/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "~/components/ui/dialog";
+import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
+import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "~/components/ui/table"
+import { Button } from "~/components/ui/button"
+// import { Pagination } from "~/components/ui/pagination"
+import { Skeleton } from "~/components/ui/skeleton"
+import { getAllResultsByQuizIdOriginal, getUserNameById } from "~/lib/clientApis"
 
-interface Candidate {
-  id: number;
-  name: string;
-  score: number;
-  timeTaken: number;
+interface Result {
+  id: number
+  score: number
+  timeTaken: number
+  detailed: {
+    [questionId: string]: {
+      selectedAnswer: number
+      isCorrect: boolean
+      timeTaken: number
+    }
+  }
+  userId: number
+  quizId: number
 }
 
-const candidates: Candidate[] = [
-  { id: 1, name: "John Doe", score: 8, timeTaken: 540 },
-  { id: 2, name: "Jane Smith", score: 9, timeTaken: 480 },
-  { id: 3, name: "Bob Johnson", score: 7, timeTaken: 600 },
-  { id: 4, name: "Alice Brown", score: 10, timeTaken: 510 },
-  { id: 5, name: "Charlie Davis", score: 6, timeTaken: 570 },
-];
+interface QuizResultsProps {params:{
+  id: number
+}}
 
-export default function QuizResults() {
-  const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(
-    null,
-  );
+export default function QuizResults({ params: { id} }: QuizResultsProps) {
+  const [results, setResults] = useState<Result[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [currentPage, setCurrentPage] = useState(1)
+  const resultsPerPage = 10
+  const router = useRouter()
 
-  const formatTime = (seconds: number) => {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes}m ${remainingSeconds}s`;
-  };
+  useEffect(() => {
+    const fetchResults = async () => {
+      try {
+        const response = await getAllResultsByQuizIdOriginal(id);
+        const data = response.results;
+        setResults(data)
+      } catch (err) {
+        setError('An error occurred while fetching the results.')
+      } finally {
+        setLoading(false)
+      }
+    }
 
-  return (
-    <div className="container mx-auto py-8">
-      <Card className="w-full">
+    void fetchResults()
+  }, [id])
+
+  const [users, setUsers] = useState<{id: number, name: string}[]>([])
+  useEffect(() => {
+    if (results.length === 0) {
+      return;
+    }
+    const fetchResults = async (ids: number[]) => {
+      try {
+        const response = await getUserNameById(ids) as {users: {id: number, name: string}[]}
+        const data = response.users;
+        return data;
+      } catch (err) {
+        setError('An error occurred while fetching the results.')
+        return [];
+      }
+    }
+    
+    const ids = results.map((result) => result.userId);
+    fetchResults(ids).then((users) => {
+      console.log("Users:", users);
+      setUsers(users);
+    });
+  }, [results])
+
+  // const totalPages = Math.ceil(results.length / resultsPerPage)
+  // const paginatedResults = results.slice(
+  //   (currentPage - 1) * resultsPerPage,
+  //   currentPage * resultsPerPage
+  // )
+
+  const averageScore = results.length > 0
+    ? results.reduce((sum, result) => sum + result.score, 0) / results.length
+    : 0
+
+  const averageTimeTaken = results.length > 0
+    ? results.reduce((sum, result) => sum + result.timeTaken, 0) / results.length
+    : 0
+
+  if (loading) {
+    return (
+      <Card className="w-full max-w-4xl mx-auto mt-8">
         <CardHeader>
-          <CardTitle className="text-2xl font-bold">
-            General Knowledge Quiz Results
-          </CardTitle>
+          <CardTitle>Quiz Results</CardTitle>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Score</TableHead>
-                <TableHead>Time Taken</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {candidates.map((candidate) => (
-                <TableRow key={candidate.id}>
-                  <TableCell className="font-medium">
-                    {candidate.name}
-                  </TableCell>
-                  <TableCell>{candidate.score} / 10</TableCell>
-                  <TableCell>{formatTime(candidate.timeTaken)}</TableCell>
-                  <TableCell className="text-right">
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button
-                          variant="outline"
-                          onClick={() => setSelectedCandidate(candidate)}
-                        >
-                          View
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent className="sm:max-w-[425px]">
-                        <DialogHeader>
-                          <DialogTitle>Candidate Details</DialogTitle>
-                        </DialogHeader>
-                        <div className="grid gap-4 py-4">
-                          <div className="grid grid-cols-4 items-center gap-4">
-                            <span className="font-bold">Name:</span>
-                            <span className="col-span-3">
-                              {selectedCandidate?.name}
-                            </span>
-                          </div>
-                          <div className="grid grid-cols-4 items-center gap-4">
-                            <span className="font-bold">Score:</span>
-                            <span className="col-span-3">
-                              {selectedCandidate?.score} / 10
-                            </span>
-                          </div>
-                          <div className="grid grid-cols-4 items-center gap-4">
-                            <span className="font-bold">Time Taken:</span>
-                            <span className="col-span-3">
-                              {formatTime(selectedCandidate?.timeTaken || 0)}
-                            </span>
-                          </div>
-                        </div>
-                      </DialogContent>
-                    </Dialog>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+          <Skeleton className="w-full h-8 mb-4" />
+          <Skeleton className="w-full h-64" />
         </CardContent>
       </Card>
-    </div>
-  );
+    )
+  }
+
+  if (error) {
+    return (
+      <Card className="w-full max-w-4xl mx-auto mt-8">
+        <CardHeader>
+          <CardTitle>Error</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-red-500">{error}</p>
+          <Button onClick={() => router.push('/dashboard')} className="mt-4">
+            Back to Dashboard
+          </Button>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  return (
+    <Card className="w-full max-w-4xl mx-auto mt-8">
+      <CardHeader>
+        <CardTitle>Quiz Results</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="mb-6">
+          <h3 className="text-lg font-semibold mb-2">Summary</h3>
+          <p>Total Attempts: {results.length}</p>
+          <p>Average Score: {averageScore.toFixed(2)}</p>
+          <p>Average Time Taken: {averageTimeTaken} seconds</p>
+        </div>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>User</TableHead>
+              <TableHead>Score</TableHead>
+              <TableHead>Time Taken</TableHead>
+              {/* <TableHead>Actions</TableHead> */}
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {results.map((result) => (
+              <TableRow key={result.id}>
+                <TableCell>{users.find((user) => user.id === result.userId)?.name}</TableCell>
+                <TableCell>{result.score}</TableCell>
+                <TableCell>{result.timeTaken} seconds</TableCell>
+                {/* <TableCell>
+                  <Button
+                    onClick={() => router.push(`/results/${result.id}`)}
+                    variant="outline"
+                    size="sm"
+                  >
+                    View Details
+                  </Button>
+                </TableCell> */}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+        {/* {totalPages > 1 && (
+          <Pagination className="mt-4">
+            <Button
+              onClick={() => setCurrentPage(page => Math.max(1, page - 1))}
+              disabled={currentPage === 1}
+            >
+              Previous
+            </Button>
+            <span className="mx-4">
+              Page {currentPage} of {totalPages}
+            </span>
+            <Button
+              onClick={() => setCurrentPage(page => Math.min(totalPages, page + 1))}
+              disabled={currentPage === totalPages}
+            >
+              Next
+            </Button>
+          </Pagination>
+        )} */}
+      </CardContent>
+    </Card>
+  )
 }

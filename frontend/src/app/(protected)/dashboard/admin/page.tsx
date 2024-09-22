@@ -47,6 +47,10 @@ export default function Dashboard() {
     router.push(`/edit-quiz/${quiz.id}`);
   };
 
+  const handleViewResults = (quiz: Quiz) => {
+    router.push(`/quizResults/${quiz.id}`);
+  };
+
   return (
     <div className="min-h-screen bg-gray-100">
 
@@ -85,7 +89,7 @@ export default function Dashboard() {
                     {/* <Button variant="outline" size="sm" onClick={() => handleEditQuiz(quiz)}>
                       <Edit className="mr-2 h-4 w-4" /> Edit
                     </Button> */}
-                    <Button variant="outline" size="sm">
+                    <Button variant="outline" size="sm" onClick={() => handleViewResults(quiz)}>
                       <Eye className="mr-2 h-4 w-4" /> View Results
                     </Button>
                   </div>

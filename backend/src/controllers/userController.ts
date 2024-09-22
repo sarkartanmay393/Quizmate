@@ -115,3 +115,22 @@ export const loginUser = async (req: Request, res: Response) => {
     res.status(500).json({ error: "Failed to login user" });
   }
 };
+
+export const getUserNameById = async (req: Request, res: Response) => {
+  const { ids } = req.body;
+
+  try {
+    const users = await prisma.user.findMany({
+      where: { id: { in: ids } },
+    });
+
+    if (!users) {
+      res.status(404).json({ error: "User not found" });
+      return;
+    }
+
+    res.status(200).json({ users });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to get user name" });
+  }
+};
