@@ -28,6 +28,6 @@ jobs:
       # Deploy the code to the Lightsail server
       - name: Deploy to AWS Lightsail
         run: |
-          scp -r ./dist/ bitnami@${{ secrets.LIGHTSAIL_IP }}:/home/bitnami/Quizmate/backend
+          ssh bitnami@${{ secrets.LIGHTSAIL_IP }} "rm -rf /home/bitnami/Quizmate/backend/dist"
+          scp -r ./backend/dist/ bitnami@${{ secrets.LIGHTSAIL_IP }}:/home/bitnami/Quizmate/backend
           ssh bitnami@${{ secrets.LIGHTSAIL_IP }} "cd /home/bitnami/Quizmate/backend && pm2 restart all"
-
