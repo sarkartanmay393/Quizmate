@@ -7,6 +7,8 @@ import quizRoutes from './routes/quizRoutes';
 import { PrismaClient } from '@prisma/client';
 import { catchAllMiddleware } from './middlewares/catchAllMiddleware';
 import { catchGlobalErrors } from './middlewares/catchGlobalErrors';
+import dotenv from 'dotenv';
+dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3001;
