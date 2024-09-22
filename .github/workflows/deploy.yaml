@@ -18,6 +18,11 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
+      # Add the Lightsail server to known_hosts to avoid host key verification failure
+      - name: Add Lightsail instance to known_hosts
+        run: |
+          ssh-keyscan -H ${{ secrets.LIGHTSAIL_IP }} >> ~/.ssh/known_hosts
+
       # Install dependencies and build your project
       - name: Install dependencies
         run: |
