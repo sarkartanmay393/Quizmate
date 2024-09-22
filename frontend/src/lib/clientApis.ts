@@ -8,8 +8,13 @@ export const getAllQuizzesByAdmin = async () => {
 };
 
 export const createQuiz = async (quiz: Quiz) => {
-  const response = await axiosInstance.post('/createQuiz', quiz);
-  return response.data;
+  try {
+    const response = await axiosInstance.post('/createQuiz', quiz);
+    return response.data;
+  } catch (error) {
+    console.error("Error creating quiz:", error);
+    throw error;
+  }
 };
 
 export const getQuizById = async (id: number) => {
@@ -23,8 +28,13 @@ export const getQuizByInviteCode = async (inviteCode: string) => {
 };
 
 export const generateResult = async (quizReport: QuizAttemptReport) => {
-  const response = await axiosInstance.post('/generateResult', {quizReport});
-  return response.data;
+  try {
+    const response = await axiosInstance.post('/generateResult', {quizReport});
+    return response.data;
+  } catch (error) {
+    console.error("Error generating result:", error);
+    throw error;
+  }
 }
 
 export const getAllResultsByQuizId = async () => {
@@ -40,4 +50,14 @@ export const getAllResultsByQuizIdOriginal = async (id: number) => {
 export const getUserNameById = async (ids: number[]) => {
   const response = await axiosInstance.post(`/getUserNameById`, {ids: ids});
   return response.data;
+}
+
+export const deleteQuiz = async (id: number) => {
+  try {
+    const response = await axiosInstance.delete(`/deleteQuiz/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error deleting quiz:", error);
+    throw error;
+  }
 }

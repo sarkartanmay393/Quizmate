@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { type User } from "~/lib/types";
-import { redirect, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const route = useRouter();

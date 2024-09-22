@@ -16,6 +16,8 @@ import { generateResult, getQuizByInviteCode } from '~/lib/clientApis'
 import type { Quiz, QuizAttemptReport, QuizQuestion, UserSelectedAnswers } from '~/lib/types'
 import { Button } from '~/components/ui/button'
 import { useRouter } from 'next/navigation'
+import { Progress } from '~/components/ui/progress'
+import { toast } from '~/hooks/use-toast'
 
 
 export default function CandidateDetailPage({ params }: { params: { id: string } }) {
@@ -76,8 +78,11 @@ export default function CandidateDetailPage({ params }: { params: { id: string }
     generateResult(report).then(res => {
       console.log("Result:", res);
       router.push(`/result/${res.newResult.id}`)
-    }).catch(err => {
-      console.error("Error generating result:", err)
+    }).catch(() => {
+      toast({
+        title: "Error generating result",
+        description: "Please try again later.",
+      });
     });
 
   }
@@ -119,6 +124,7 @@ export default function CandidateDetailPage({ params }: { params: { id: string }
       <div className="mx-auto max-w-4xl">
         <Card className="w-full max-w-3xl mx-auto mt-8">
           <CardHeader>
+            <Progress max={60} value={timeLeft} />
             <CardTitle>{quiz?.title}</CardTitle>
             <div className="text-sm text-muted-foreground">
               Question {currentQuestionIndex + 1} of {questions.length}

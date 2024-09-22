@@ -137,6 +137,7 @@ export const createResult = async (req: AuthenticatedRequest, res: Response) => 
 
     res.status(201).json({ newResult });
   } catch (error: any) {
-    res.status(500).json({ error: "Failed to create result", cause: error });
+    console.log(error);
+    res.status(500).json({ error: "Failed to create result", cause: JSON.stringify(error) });
   }
 };

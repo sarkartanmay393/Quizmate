@@ -5,10 +5,12 @@
 
 import { useEffect, useState } from "react";
 import { Button } from "~/components/ui/button";
-import { Edit, Eye, Plus } from "lucide-react";
-import { getAllQuizzesByAdmin } from "~/lib/clientApis";
+import { Edit, Eye, Plus, Trash2 } from "lucide-react";
+import { deleteQuiz, getAllQuizzesByAdmin } from "~/lib/clientApis";
 import { useRouter } from "next/navigation";
 import type { Quiz } from "~/lib/types";
+import { Label } from "~/components/ui/label";
+import { toast } from "~/hooks/use-toast";
 
 const mockQuizzes = [
   { id: 1, name: "General Knowledge Quiz" },
@@ -51,6 +53,25 @@ export default function Dashboard() {
     router.push(`/quizResults/${quiz.id}`);
   };
 
+  const handleCopyInvite = (inviteCode?: string) => {
+    void navigator.clipboard.writeText(`http://localhost:3000/attempt-quiz/${inviteCode}`);
+    toast({
+      title: "Invite Code Copied",
+      description: "Copy the invite code to share with your interviewee",
+    });
+  };
+
+  const handleDeleteQuiz = (id?: number) => {
+    if (!id) return;
+    void deleteQuiz(id).then(({ message }) => {
+      toast({
+        title: "Quiz deleted",
+        description: message,
+      });
+      setQuizzes((prev) => prev.filter((q) => q.id !== id));
+    });
+  };
+
   return (
     <div className="min-h-screen bg-gray-100">
 
@@ -89,8 +110,17 @@ export default function Dashboard() {
                     {/* <Button variant="outline" size="sm" onClick={() => handleEditQuiz(quiz)}>
                       <Edit className="mr-2 h-4 w-4" /> Edit
                     </Button> */}
+                    {/* <Label>
+                      Invite Code: {quiz.inviteCode}
+                    </Label> */}
+                    <Button variant="outline" size="sm" onClick={() => handleCopyInvite(quiz.inviteCode)}>
+                     Copy Invite Code ({quiz.inviteCode})
+                    </Button>
                     <Button variant="outline" size="sm" onClick={() => handleViewResults(quiz)}>
                       <Eye className="mr-2 h-4 w-4" /> View Results
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => handleDeleteQuiz(quiz.id ?? 0)}>
+                      <Trash2 className="mr-2 h-4 w-4" />
                     </Button>
                   </div>
                 </li>

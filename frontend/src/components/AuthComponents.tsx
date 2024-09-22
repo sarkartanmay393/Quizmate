@@ -134,6 +134,11 @@ const SignUpForm = ({ success}: any) => {
           console.log(JSON.stringify(err));
           localStorage.removeItem('token');
           localStorage.removeItem('user');
+          toast({
+            title: 'Error',
+            description: JSON.stringify(err),
+            variant: 'destructive',
+          })
         }).finally(() => {
           success();
         });
