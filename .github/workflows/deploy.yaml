@@ -1,0 +1,32 @@
+name: Deploy Backend to AWS Lightsail
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v2
+
+      # Set up SSH agent with the private key from GitHub secrets
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      # Install dependencies and build your project
+      - name: Install dependencies
+        run: |
+          npm install
+          npm run build
+
+      # Deploy the code to the Lightsail server
+      - name: Deploy to AWS Lightsail
+        run: |
+          scp -r ./dist/ bitnami@${{ secrets.LIGHTSAIL_IP }}:/home/bitnami/Quizmate/backend
+          ssh bitnami@${{ secrets.LIGHTSAIL_IP }} "cd /home/bitnami/Quizmate/backend && pm2 restart all"
+
