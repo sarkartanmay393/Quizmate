@@ -1,17 +1,18 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { Button } from "~/components/ui/button";
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
   CardFooter,
-} from "../../components/ui/card";
-import { RadioGroup, RadioGroupItem } from "../../components/ui/radio-group";
-import { Label } from "../../components/ui/label";
-import { Progress } from "../../components/ui/progress";
-import { Alert, AlertTitle, AlertDescription } from "../../components/ui/alert";
+} from "~/components/ui/card";
+import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group";
+import { Label } from "~/components/ui/label";
+import { Progress } from "~/components/ui/progress";
+import { Alert, AlertTitle, AlertDescription } from "~/components/ui/alert";
 
 interface Question {
   id: number;
@@ -55,6 +56,7 @@ const sampleQuestions: Question[] = [
 export default function Component() {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [selectedAnswers, setSelectedAnswers] = useState<(string | null)[]>([]);
   const [timeLeft, setTimeLeft] = useState(60); // 60 seconds per question
   const [progress, setProgress] = useState(0);
   const [quizName] = useState("General Knowledge Quiz");
@@ -71,7 +73,9 @@ export default function Component() {
   };
 
   useEffect(() => {
-    setQuestions(shuffleArray(sampleQuestions));
+    const shuffledQuestions = shuffleArray(sampleQuestions);
+    setQuestions(shuffledQuestions);
+    setSelectedAnswers(new Array(shuffledQuestions.length).fill(null));
   }, []);
 
   useEffect(() => {
@@ -92,28 +96,30 @@ export default function Component() {
   }, [currentQuestionIndex, quizCompleted]);
 
   const handleNextQuestion = useCallback(() => {
-    setCurrentQuestionIndex((prevIndex) => {
-      if (prevIndex < questions.length - 1) {
-        return prevIndex + 1;
-      } else {
-        setQuizCompleted(true);
-        return prevIndex;
-      }
-    });
-    setTimeLeft(60);
-    setProgress(0);
-  }, [questions.length]);
+    if (currentQuestionIndex < questions.length - 1) {
+      setCurrentQuestionIndex((prevIndex) => prevIndex + 1);
+      setTimeLeft(60);
+      setProgress(0);
+    }
+  }, [currentQuestionIndex, questions.length]);
 
   const handleAnswerSelection = (selectedAnswer: string) => {
-    if (selectedAnswer === questions[currentQuestionIndex].correctAnswer) {
-      setScore((prevScore) => prevScore + 1);
-    }
+    setSelectedAnswers((prevAnswers) => {
+      const newAnswers = [...prevAnswers];
+      newAnswers[currentQuestionIndex] = selectedAnswer;
+      return newAnswers;
+    });
+  };
 
-    if (currentQuestionIndex < questions.length - 1) {
-      handleNextQuestion();
-    } else {
-      setQuizCompleted(true);
-    }
+  const handleSubmit = () => {
+    let newScore = 0;
+    questions.forEach((question, index) => {
+      if (selectedAnswers[index] === question.correctAnswer) {
+        newScore++;
+      }
+    });
+    setScore(newScore);
+    setQuizCompleted(true);
   };
 
   if (questions.length === 0) {
@@ -161,7 +167,10 @@ export default function Component() {
           </CardHeader>
           <CardContent>
             <Progress value={progress} className="mb-4" />
-            <RadioGroup onValueChange={handleAnswerSelection}>
+            <RadioGroup
+              value={selectedAnswers[currentQuestionIndex] || ""}
+              onValueChange={handleAnswerSelection}
+            >
               {currentQuestion.options.map((option, index) => (
                 <div key={index} className="mb-4 flex items-center space-x-2">
                   <RadioGroupItem value={option} id={`option-${index}`} />
@@ -172,8 +181,13 @@ export default function Component() {
               ))}
             </RadioGroup>
           </CardContent>
-          <CardFooter className="flex items-center justify-end">
+          <CardFooter className="flex items-center justify-between">
             <div>Time left: {timeLeft} seconds</div>
+            {currentQuestionIndex < questions.length - 1 ? (
+              <Button onClick={handleNextQuestion}>Next</Button>
+            ) : (
+              <Button onClick={handleSubmit}>Submit</Button>
+            )}
           </CardFooter>
         </Card>
       </div>
