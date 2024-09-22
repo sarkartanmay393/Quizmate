@@ -23,9 +23,16 @@ const limiter = rateLimit({
   }
 });
 
-app.use(limiter);
+// app.use(limiter);
 app.use(express.json());
-app.use(cors());
+app.use(cors(
+  {
+    origin: '*',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    preflightContinue: false,
+    optionsSuccessStatus: 204,
+  }
+));
 
 app.get('/', (_, res) => {
   res.send('Welcome to the QuizMate API!');

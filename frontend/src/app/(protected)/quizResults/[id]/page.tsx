@@ -18,89 +18,21 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "~/components/ui/dialog";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "~/components/ui/tooltip";
-import { Copy } from "lucide-react";
 
 interface Candidate {
   id: number;
   name: string;
-  email: string;
   score: number;
   timeTaken: number;
 }
 
 const candidates: Candidate[] = [
-  {
-    id: 1,
-    name: "John Doe",
-    email: "john.doe@example.com",
-    score: 8,
-    timeTaken: 540,
-  },
-  {
-    id: 2,
-    name: "Jane Smith",
-    email: "jane.smith@example.com",
-    score: 9,
-    timeTaken: 480,
-  },
-  {
-    id: 3,
-    name: "Bob Johnson",
-    email: "bob.johnson@example.com",
-    score: 7,
-    timeTaken: 600,
-  },
-  {
-    id: 4,
-    name: "Alice Brown",
-    email: "alice.brown@example.com",
-    score: 10,
-    timeTaken: 510,
-  },
-  {
-    id: 5,
-    name: "Charlie Davis",
-    email: "charlie.davis@example.com",
-    score: 6,
-    timeTaken: 570,
-  },
+  { id: 1, name: "John Doe", score: 8, timeTaken: 540 },
+  { id: 2, name: "Jane Smith", score: 9, timeTaken: 480 },
+  { id: 3, name: "Bob Johnson", score: 7, timeTaken: 600 },
+  { id: 4, name: "Alice Brown", score: 10, timeTaken: 510 },
+  { id: 5, name: "Charlie Davis", score: 6, timeTaken: 570 },
 ];
-
-const CopyableText: React.FC<{ text: string }> = ({ text }) => {
-  const [copied, setCopied] = useState(false);
-
-  const copyToClipboard = () => {
-    navigator.clipboard.writeText(text).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    });
-  };
-
-  return (
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <div
-            className="flex cursor-pointer items-center space-x-2"
-            onClick={copyToClipboard}
-          >
-            <span>{text}</span>
-            <Copy size={16} />
-          </div>
-        </TooltipTrigger>
-        <TooltipContent>
-          <p>{copied ? "Copied!" : "Click to copy"}</p>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
-  );
-};
 
 export default function QuizResults() {
   const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(
@@ -126,7 +58,6 @@ export default function QuizResults() {
             <TableHeader>
               <TableRow>
                 <TableHead>Name</TableHead>
-                <TableHead>Email</TableHead>
                 <TableHead>Score</TableHead>
                 <TableHead>Time Taken</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
@@ -137,9 +68,6 @@ export default function QuizResults() {
                 <TableRow key={candidate.id}>
                   <TableCell className="font-medium">
                     {candidate.name}
-                  </TableCell>
-                  <TableCell>
-                    <CopyableText text={candidate.email} />
                   </TableCell>
                   <TableCell>{candidate.score} / 10</TableCell>
                   <TableCell>{formatTime(candidate.timeTaken)}</TableCell>
@@ -162,14 +90,6 @@ export default function QuizResults() {
                             <span className="font-bold">Name:</span>
                             <span className="col-span-3">
                               {selectedCandidate?.name}
-                            </span>
-                          </div>
-                          <div className="grid grid-cols-4 items-center gap-4">
-                            <span className="font-bold">Email:</span>
-                            <span className="col-span-3">
-                              {selectedCandidate && (
-                                <CopyableText text={selectedCandidate.email} />
-                              )}
                             </span>
                           </div>
                           <div className="grid grid-cols-4 items-center gap-4">

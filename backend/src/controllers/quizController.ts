@@ -17,6 +17,13 @@ export const getAllQuizzesByAdmin = async (req: AuthenticatedRequest, res: Respo
 
     const quizzes = await prisma.quiz.findMany({
       where: { adminId: Number(userId) },
+      include: {
+        questions: {
+          include: {
+            answers: true,
+          },
+        }
+      },
     });
     res.status(200).json({ quizzes });
   } catch (error) {

@@ -48,7 +48,17 @@ export const createUser = async (req: Request, res: Response) => {
         role,
       },
     });
-    res.status(201).json({ newUser });
+    const token = jwt.sign(
+      {
+        userId: newUser.id,
+        email: newUser.email,
+        role: newUser.role,
+      },
+      process.env.JWT_SECRET as string,
+      {
+        expiresIn: "4h",
+      });
+    res.status(201).json({ newUser, token });
   } catch (error) {
     res.status(500).json({ error: "Failed to create user", verbose: JSON.stringify(error) });
   }
