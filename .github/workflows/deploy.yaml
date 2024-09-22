@@ -35,4 +35,4 @@ jobs:
         run: |
           ssh bitnami@${{ secrets.LIGHTSAIL_IP }} "rm -rf /home/bitnami/Quizmate/backend/dist"
           scp -r ./backend/dist/ bitnami@${{ secrets.LIGHTSAIL_IP }}:/home/bitnami/Quizmate/backend
-          ssh bitnami@${{ secrets.LIGHTSAIL_IP }} "cd /home/bitnami/Quizmate/backend && pm2 restart all"
+          ssh bitnami@${{ secrets.LIGHTSAIL_IP }} "cd /home/bitnami/Quizmate/backend && npm install && pm2 restart all"
