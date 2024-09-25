@@ -69,7 +69,7 @@ export default function CandidateDetailPage({ params }: { params: { id: string }
   }
 
   const handleFinishQuiz = () => {
-    const report: QuizAttemptReport = {
+    const report = {
       quizId: quiz?.id ?? 0,
       userSelectedAnswers: userAnswers
     }
@@ -124,12 +124,12 @@ export default function CandidateDetailPage({ params }: { params: { id: string }
       <div className="mx-auto max-w-4xl">
         <Card className="w-full max-w-3xl mx-auto mt-8">
           <CardHeader>
-            <Progress max={60} value={timeLeft} />
+            <CustomProgress max={60} value={timeLeft} />
             <CardTitle>{quiz?.title}</CardTitle>
             <div className="text-sm text-muted-foreground">
               Question {currentQuestionIndex + 1} of {questions.length}
             </div>
-            <div className="text-lg font-semibold">Time left: {timeLeft} seconds</div>
+            <div className="text-sm font-semibold">Time left: {timeLeft} seconds</div>
           </CardHeader>
           <CardContent>
             <h2 className="text-xl font-semibold mb-4">{currentQuestion?.text}</h2>
@@ -158,3 +158,16 @@ export default function CandidateDetailPage({ params }: { params: { id: string }
     </div>
   )
 }
+
+const CustomProgress = ({ max, value }: any) => {
+  const percentage = (value / max) * 100;
+
+  return (
+    <div className="relative w-full h-1 bg-gray-200 rounded mb-3">
+      <div
+        className="absolute top-0 left-0 h-1 bg-blue-600 rounded"
+        style={{ width: `${percentage}%` }}
+      />
+    </div>
+  );
+};

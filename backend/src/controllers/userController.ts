@@ -78,10 +78,10 @@ export const loginUser = async (req: Request, res: Response) => {
       return;
     }
 
-    if (!password.match(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/)) {
-      res.status(400).json({ error: "Invalid password" });
-      return;
-    }
+    // if (!password.match(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/)) {
+    //   res.status(400).json({ error: "Invalid password" });
+    //   return;
+    // }
 
     const user = await prisma.user.findFirst({
       where: { email },
